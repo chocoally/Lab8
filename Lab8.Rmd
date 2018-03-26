@@ -93,6 +93,8 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
 
 ![Figure 2A](img/fig2a.png)
 
+Beta takes each gene (up, down, DE) and estimates the binding site within a distance from the TSS. It then scores the gene's regulatory potential (binding sites further away have a lower score contribution to the overall score). It then ranks all of the genes by the score. It then calculates a cumulative distribution function and uses a K-S test to determine whether the groups (up, down) differn significantly from the unchanged gene group
+
 ## Activating/repressive function prediction
 
 * But how to interpret this graph? 
@@ -127,6 +129,11 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
 
 11. Results are output as a table. Threshold based on score/p-value for confident target genes
 
+Rank peaks based on regulatory potential - distance of peak from gene TSS
+Rank genes based on differential expression
+So for each peak (ranked) there is a associated rank for each associated diff gene expression. High rank peak with high rank associated DE would lead to lower p-value.
+
+
 ## Binding motif analysis
 
 * BETA conducts motif analysis on sites proximal to the targets to identify factor-binding motifs
@@ -134,6 +141,8 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
 * Compares the number of motifs near the ChIP-seq binding summits with that in flanking regions to detect motifs with marked summit enrichment
 
 * Results summarized in a web page (screenshot for homework!)
+
+Can look at JASPER database for binding motifs for each TF
 
 ![Figure 2B](img/fig2b.png)
 
@@ -194,18 +203,15 @@ for nucleotide in range(len(seqs)-1):
   curr_pair = seqs[nucleotide] + seqs[nucleotide+1]
   dinucleotide_dictionary[curr_pair] += 1
 curr_total = sum(dinucleotide_dictionary.values())
-dinucleotide_dictionary.update((x, y/curr_total) for x, y in dinucleotide_dictionary.items())
-
-## Or set these manually
-#dinucleotide_dictionary = {'AA':.25, 'AC':0,'AG':0,'AT':0,'CA':.25,'CC':0,'CG':0,'CT':0,'GA':.25,'GC':0,'GG':0,'GT':0,'TA':.25,'TC':0,'TG':0,'TT':0}
+dinucleotide_dictionary.update((x, y/curr_total) for x, y in dinucleotide_dictionary.items()) #now percentage
 
 # Markov chain sequence simulation
 import numpy as np # for random choice
 n_seqs = 100
 seq_lengths = 8
 seq_array = list()
-dinucleotides = dinucleotide_dictionary.keys()
-probs = dinucleotide_dictionary.values()
+dinucleotides = list(dinucleotide_dictionary.keys())
+probs = list(dinucleotide_dictionary.values())
 for i in range(n_seqs):
   seq = np.random.choice(dinucleotides, 1, p=probs)[0]
   for j in range(seq_lengths-2):
